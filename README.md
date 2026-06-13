@@ -1,49 +1,139 @@
-# Proyecto Examen Final - Módulo 3
+# Gestor de Conocimiento con CAG
 
-Proyecto base para la evaluación práctica del módulo 3. Los requisitos oficiales están en `Enunciado en la serie II de la evaluación final`.
+Proyecto final — Inteligencia Artificial  
+Universidad Mariano Gálvez de Guatemala  
+Estudiante: Jerson Centeno
 
-## Inicio rápido
+---
 
-1. Abra la carpeta `ProyectoExamen`.
-2. Ejecute las pruebas base.
-3. Levante el backend.
-4. Abra el frontend para revisar el estado inicial.
+## ¿Qué es este proyecto?
 
-## Estructura
+Sistema de preguntas y respuestas con dos capas de inteligencia:
 
-| Ruta | Contenido |
-|---|---|
-| `backend/` | Código del servidor y lógica base del asistente. |
-| `frontend/` | Interfaz web estática para interactuar con el backend. |
-| `data/` | Base de conocimiento inicial del proyecto. |
-| `tests/base/` | Pruebas base que deben pasar desde el inicio. |
-| `tests/validation/` | Pruebas de validación de la entrega final. |
-| `docs/` | Espacio para documentación técnica y evidencias del estudiante. |
+- **RAG** (Retrieval Augmented Generation): recupera información de una base
+  documental para responder preguntas.
+- **CAG** (Context-Augmented Generation): guarda el contexto del usuario
+  (preferencias, historial) y lo usa para enriquecer respuestas futuras.
 
-## Ejecutar pruebas base
+---
+
+## Arquitectura
+frontend/          → Interfaz web (HTML + CSS + JS)
+
+backend/
+
+server.py        → Servidor HTTP (rutas /health, /api/ask, /api/context)
+
+assistant.py     → Orquestador RAG + CAG
+
+knowledge.py     → Recuperación documental (RAG)
+
+context_store.py → Almacenamiento de contexto por usuario (CAG)
+
+cag.py           → Aplicación de contexto a la respuesta (CAG)
+
+data/
+
+knowledge_base.json → Base documental del curso
+
+tests/
+
+base/            → Pruebas del sistema RAG base
+
+validation/      → Pruebas del contrato CAG
+
+docs/
+
+evidencias/      → Capturas del proceso de desarrollo
+---
+
+## Flujo RAG + CAG
+POST /api/ask
+
+↓
+
+retrieve_snippets(question)     ← RAG: busca en knowledge_base.json
+
+↓
+
+context_store.list_for_user()   ← CAG: recupera contexto del usuario
+
+↓
+
+apply_context()                 ← CAG: enriquece la respuesta
+
+↓
+
+Retorna answer + sources + context_used
+---
+
+## Instalación y ejecución
 
 ```bash
-./scripts/run_base_tests.sh
+# Instalar dependencias
+pip install pytest
+
+# Correr el servidor
+python -m backend.server
+
+# Correr todas las pruebas
+python -m pytest tests/ -v
 ```
 
-Estas pruebas validan que el proyecto inicial funciona correctamente.
+---
 
-## Ejecutar backend
+## Pruebas
 
 ```bash
-PYTHONPATH=. python3 -m backend.server
+# Pruebas base (RAG)
+python -m pytest tests/base/ -v
+
+# Pruebas CAG
+python -m pytest tests/validation/ -v
 ```
 
-El backend queda disponible en `http://127.0.0.1:8000`.
+Resultado final: **6/6 pruebas pasan**
 
-## Abrir frontend
+---
 
-Abra `frontend/index.html` en un navegador. También puede servir la carpeta con un servidor estático local si lo prefiere.
+## Scrum
 
-## Validación final
+### Backlog
 
-```bash
-./test.sh
-```
+| ID | Historia | Prioridad |
+|----|----------|-----------|
+| US-01 | Guardar contexto por usuario | Alta |
+| US-02 | Recuperar contexto por usuario | Alta |
+| US-03 | Aplicar contexto a la respuesta | Alta |
+| US-04 | Documentar proceso con PROMPTS.md | Media |
+| US-05 | Actualizar README y evidencias | Media |
 
-En el proyecto base, la validación final está destinada a fallar. Debe utilizarse como autoevaluación cuando el trabajo solicitado en el enunciado esté completo.
+### Sprint 1 — Implementación CAG
+**Duración:** 12/06/2026  
+**Objetivo:** Implementar los tres módulos CAG y pasar las 6 pruebas.
+
+| Tarea | Estado |
+|-------|--------|
+| Analizar arquitectura base | ✅ |
+| Implementar ContextStore | ✅ |
+| Implementar apply_context | ✅ |
+| Conectar assistant.py con context_store | ✅ |
+| Verificar 6/6 pruebas | ✅ |
+
+### Sprint 2 — Documentación y cierre
+**Duración:** 12/06/2026  
+**Objetivo:** Completar documentación, evidencias y Pull Request.
+
+| Tarea | Estado |
+|-------|--------|
+| Subir evidencias a docs/ | ✅ |
+| Actualizar README.md | ✅ |
+| Completar PROMPTS.md | ✅ |
+| Crear Pull Request | 🔄 |
+
+---
+
+## Uso de IA
+
+Ver `PROMPTS.md` para el registro cronológico completo del uso de IA
+durante el desarrollo, incluyendo prompts, decisiones humanas y verificaciones.
