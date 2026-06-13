@@ -1,23 +1,28 @@
 from backend.knowledge import retrieve_snippets
+from backend.cag import apply_context
 
 
-def answer_question(user_id, question):
+def answer_question(user_id, question, context_store):
     snippets = retrieve_snippets(question)
 
     if not snippets:
         return {
             "user_id": user_id,
-            "answer": "No encontre informacion suficiente en la base de conocimiento del curso.",
+            "answer": "No encontre informacion suficiente en la base de conocimiento.",
             "sources": [],
             "context_used": [],
         }
 
     source_text = " ".join(item["content"] for item in snippets)
-    answer = f"Segun la base de conocimiento del curso: {source_text}"
+    base_answer = f"Segun la base de conocimiento del curso: {source_text}"
+
+    context_items = context_store.list_for_user(user_id)
+    final_answer = apply_context(user_id, question, base_answer, context_items)
+    context_used = [item["key"] for item in context_items]
 
     return {
         "user_id": user_id,
-        "answer": answer,
+        "answer": final_answer,
         "sources": [item["id"] for item in snippets],
-        "context_used": [],
+        "context_used": context_used,
     }
